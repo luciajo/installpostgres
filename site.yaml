@@ -1,0 +1,34 @@
+---
+# This playbook installs postgres on a linux server
+- hosts: dbservers
+  vars:
+    #http_port: 80
+    #max_clients: 200
+  remote_user: root
+  
+  tasks:
+  - name: Update Linux server
+    #sudo yum update
+    yum: name=update state=latest
+    
+  - name: Download the rpm from website or satellite
+    wget https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
+    
+  - name: Install the rpm
+    # sudo yum install pgdg-centos96-9.6-3.noarch.rpm epel-release
+    yum: name=pgdg-centos96-9.6-3 state=present
+    
+  - name: Install postgres
+    # sudo yum install postgresql192-server, -contrib, -devel
+    yum: name=postgresql192-server state=present
+    yum: name=postgresql192-contrib state=present
+    yum: name=postgresql192-devel state=present
+    
+  - name: Post-installation
+    # sudo postgresql-setup initdb
+    # sudo systemctl start postgres
+    service: name=postgreqsql state=started enabled=yes
+    
+  - name: create a test database and user
+    postgresql_db: name=pilotdb state=present
+    postgresql_user: db=pilotdb name=pilotusr password=pilotusr priv=*.*:ALL
